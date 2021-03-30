@@ -17,8 +17,6 @@
 
 [Cluster-Sentinel](#Cluster-Sentinel)
 
-[ANY 캐시 구조 문제점](#ANY캐시구조)
-
 [Fork](#fork)
 
 
