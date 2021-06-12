@@ -219,3 +219,15 @@ In-Memory Data Structure Store Based on Key-Value pair
 [redis 성능 개선기](https://wariua.github.io/performance/an-optimization-case-redis.html)
 
 [redis 100만, 1000만 성능테스트](https://www.joinc.co.kr/w/man/12/REDIS/PerfTest)
+
+[Redis Master-slave](http://redisgate.kr/redis/configuration/param_slaveof.php)
+
+[레디스 센티널 예제](https://jdm.kr/blog/159)
+
+[redis replication 및 센티넬](https://sup2is.github.io/2020/07/22/redis-replication-with-sentinel.html)
+
+[redis 아키텍처](https://jaehun2841.github.io/2018/12/03/2018-12-03-docker-10/#%EC%9D%B4%EC%A0%84-%EC%9E%A5%EA%B9%8C%EC%A7%80-%EC%84%A4%EC%B9%98-%ED%96%88%EB%8D%98-redis-%EA%B5%AC%EC%A1%B0)
+
+[redis 클러스터링](https://rastalion.me/redis-8-docker%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-redis-cluster-%EA%B5%AC%EC%B6%95-ver-5-0-5-buster/)
+
+[redis 명령어](https://dejavuqa.tistory.com/155)
