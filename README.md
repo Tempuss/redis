@@ -162,6 +162,23 @@ In-Memory Data Structure Store Based on Key-Value pair
 * To Be Continued?
 
 
+## ANY캐시구조
+---
+* redis 자료를 모으면서 현 any 캐시 구조에서 장기적으로 발생 할 수 있는 문제점들을 찾았습니다.
+1. 현재 pms정책 쿼리 의존성
+(모든 dns, process Query는 오직 redis에서만 조회하도록 되어있습니다.)
+
+2. 인증, 정책, installer 모두 한개의 redis 도커에서 조회 (MSA를 위해 서비스를 분리했지만 redis가 다 합쳐져 있어서 사실상 장애발생시 모놀리식 아키텍처와 같은 문제가 발생합니다.)
+
+3. 정책 데이터 증가에 따른 인증과 installer 데이터 관련 기능 fail 가능성 (정책 데이터는 agent에서 요청하는 대로 빠르게 증가할텐데 OOM 발생시 인증과 installer까지 모두 장애가 발생합니다.)
+
+4. redis에 대한 failover 기능 부재
+
+5. Look aside Cache 패턴 도입 필요성 (캐시에 데이터가 있는지 체크하고 없으면 pg에서 조회)
+
+6. 자료형 다변화 (현재 대부분의 데이터는 단순 string으로만 되어 있는데 데이터 특성에 따라 자료형을 알맞게 선택해서 사용시 
+ 성능개선을 기대할수 있습니다.)
+
 
 ## 주의사항
 ---
@@ -219,15 +236,3 @@ In-Memory Data Structure Store Based on Key-Value pair
 [redis 성능 개선기](https://wariua.github.io/performance/an-optimization-case-redis.html)
 
 [redis 100만, 1000만 성능테스트](https://www.joinc.co.kr/w/man/12/REDIS/PerfTest)
-
-[Redis Master-slave](http://redisgate.kr/redis/configuration/param_slaveof.php)
-
-[레디스 센티널 예제](https://jdm.kr/blog/159)
-
-[redis replication 및 센티넬](https://sup2is.github.io/2020/07/22/redis-replication-with-sentinel.html)
-
-[redis 아키텍처](https://jaehun2841.github.io/2018/12/03/2018-12-03-docker-10/#%EC%9D%B4%EC%A0%84-%EC%9E%A5%EA%B9%8C%EC%A7%80-%EC%84%A4%EC%B9%98-%ED%96%88%EB%8D%98-redis-%EA%B5%AC%EC%A1%B0)
-
-[redis 클러스터링](https://rastalion.me/redis-8-docker%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-redis-cluster-%EA%B5%AC%EC%B6%95-ver-5-0-5-buster/)
-
-[redis 명령어](https://dejavuqa.tistory.com/155)

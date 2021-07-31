@@ -1,69 +1,155 @@
 version: '3.3'
 
 services:
-  redis-master:
-    #image: 'bitnami/redis:latest'
-    image: 'bitnami/redis:5.0.6'
+  redis:
+    image: 'bitnami/redis:latest'
     environment:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=str0ng_passw0rd
-      # 백업 방식을 선택하는  AOF(Append only File)값, RDB(통째로 dump)
-      - REDIS_AOF_ENABLED=yes
-      #- master와 slave간 통신에 ssl 암호화를 적용할지 유무값
-      #- REDIS_TLS_ENABLED=yes
-      #- REDIS_TLS_CERT_FILE=/opt/bitnami/redis/certs/redis.crt
-      #- REDIS_TLS_KEY_FILE=/opt/bitnami/redis/certs/redis.key
-      #- REDIS_TLS_CA_FILE=/opt/bitnami/redis/certs/redisCA.crt
-    #volumes:
-      # redis 설정 파일을 커스텀 해서 쓸 경우 마운팅
-      #- /path/to/your_redis.conf:/opt/bitnami/redis/mounted-etc/redis.conf
-      # redis 내부의 데이터를 외부로 빼서 영구적으로 보존해야 할 경우
-      #- /path/to/redis-persistence:/bitnami/redis/data
     networks:
       - app-tier
     ports:
-      - 0.0.0.0:6379:6379
+      - '6379'
 
   redis-slave:
-    image: 'bitnami/redis:5.0.6'
+    image: 'bitnami/redis:latest'
     environment:
       - REDIS_REPLICATION_MODE=slave
-      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_HOST=redis
       - REDIS_MASTER_PASSWORD=str0ng_passw0rd
       - REDIS_PASSWORD=str0ng_passw0rd
-      - REDIS_REPLICA_PORT=6379
-      - REDIS_AOF_ENABLED=yes
     ports:
-      - 6379
-    deploy:
-      replicas: 2
+      - '6379'
     depends_on:
-      - redis-master
+      - redis
     networks:
       - app-tier
 
-#  redis-sentinel:
-#    image: 'bitnami/redis-sentinel:5.0.6'
-##    deploy:
-##      mode: replicated
-##      replicas: 3
-#    environment:
-#      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
-#      - REDIS_MASTER_HOST=redis-master
-#      - REDIS_MASTER_PORT_NUMBER=6379
-#      - REDIS_MASTER_SET=redis-sentinel-for-test
-#      - REDIS_SENTINEL_QUORUM=1
-#    depends_on:
-#      - redis-master
-#      - redis-slave
-#    ports:
-#      - '26379-26381:26379'
-#    #volumes:
-#    #  - ./sentinel.conf:/opt/bitnami/redis-sentinel/etc/sentinel.conf
+  redis-sentinel:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
+    depends_on:
+      - redis
+      - redis-slave
+    ports:
+      - '26379-26381:26379'
+    networks:
+      - app-tier
+
+#3
+#services:
+#  redis-master:
+#    image: redis:5.0.6-alpine   # image 옵션으로 redis공식이미지를 기반으로 생성합니다.
+#    container_name: redis-master
+#    build:
+#      context: compose/redis             # build file에 대한 context를 지정
+#      dockerfile: Dockerfile
 #    networks:
-#      - app-tier
+#      - any-network-dev
+#    environment:              # Container 내부에서 사용 할 환경변수를 설정합니다.
+#      - REQUIREPASS=password1234
+#      - CLIENTPORT=6379
+#      - CLIENTHOST=redis-master
+#      - MASTERHOST=
+#      - MASTERPORT=
+#    restart: always
+#
+#  redis-slave1:
+#    image: redis:5.0.6-alpine
+#    container_name: redis-slave-1
+#    build:
+#      context: compose/redis             # build file에 대한 context를 지정
+#      dockerfile: Dockerfile
+#    networks:
+#      - any-network-dev
+#    environment:
+#      - REQUIREPASS=password1234
+#      - CLIENTPORT=6379
+#      - MASTERPORT=6379
+#      - CLIENTHOST=redis-slave-1
+#      - MASTERHOST=redis-master
+#    volumes:
+#      - "../redis-data/redis2:/data"
+#    restart: always
+#
+#  redis-slave2:
+#    image: redis:5.0.6-alpine
+#    container_name: redis-slave-2
+#    build:
+#      context: compose/redis             # build file에 대한 context를 지정
+#      dockerfile: Dockerfile
+#    networks:
+#      - any-network-dev
+#    environment:
+#      - REQUIREPASS=password1234
+#      - CLIENTPORT=6379
+#      - MASTERPORT=6379
+#      - CLIENTHOST=redis-slave-2
+#      - MASTERHOST=redis-master
+#    restart: always
+#  master-redis:
+#    #build:
+#      # context 경로와 도커파일 경로가 안맞으면 COPY 안됨
+#      #context: compose/redis
+#      #dockerfile: Dockerfile
+#    image: redis:5.0.6-alpine
+#    container_name: master-redis
+#    env_file:
+#      - ./.envs/.master_redis
+#    #environment:
+#    #  - CLIENTPORT=6379
+#    restart: always
+#    network_mode: "host"
+#    logging:
+#      driver: json-file
+#      options:
+#        max-size: "100m"
+#        max-file: "5"
+
+#  slave-redis1:
+#    build:
+#      # context 경로와 도커파일 경로가 안맞으면 COPY 안됨
+#      context: compose/redis
+#      dockerfile: Dockerfile
+#    container_name: slave-redis1
+#    env_file:
+#      - ./.envs/.slave_redis1
+#    environment:
+#      - CLIENTPORT=6380
+#    ports:
+#      - "6380:6380"
+#    restart: always
+#    network_mode: "host"
+#    logging:
+#      driver: json-file
+#      options:
+#        max-size: "100m"
+#        max-file: "5"
+#
+#  slave-redis2:
+#    build:
+#      # context 경로와 도커파일 경로가 안맞으면 COPY 안됨
+#      context: compose/redis
+#      dockerfile: Dockerfile
+#    container_name: slave-redis2
+#    env_file:
+#      - ./.envs/.slave_redis2
+#    environment:
+#      - CLIENTPORT=6381
+#    ports:
+#      - "6381:6381"
+#    restart: always
+#    network_mode: "host"
+#    logging:
+#      driver: json-file
+#      options:
+#        max-size: "100m"
+#        max-file: "5"
 
 networks:
   app-tier:
     driver: bridge
+  #any-network-dev:
+#    network_mode: "host"
 
